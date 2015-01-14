@@ -1,3 +1,4 @@
 <a name="0.0.1"></a>
 ### 0.0.1 (2015-01-14)
+Initial version with basic functionality to correlate and timeout.
 

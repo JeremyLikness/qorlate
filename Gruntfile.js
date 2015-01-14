@@ -137,6 +137,34 @@ module.exports = function (grunt) {
         );
     });
 
+    grunt.registerTask('publish-pages', 'Publish a clean build and sample to github.io', function () {
+        promising(this,
+            ensureCleanMaster().then(function () {
+                shjs.rm('-rf', 'build');
+                return system('git checkout gh-pages');
+            }).then(function () {
+                return system('git merge master');
+            }).then(function () {
+                return system('git commit -a -m \'Automatic gh-pages build\'');
+            }).then(function () {
+                return system('git checkout master');
+            })
+        );
+    });
+
+    grunt.registerTask('push-pages', 'Push published pages', function () {
+        promising(this,
+            ensureCleanMaster().then(function () {
+                shjs.rm('-rf', 'build');
+                return system('git checkout gh-pages');
+            }).then(function () {
+                return system('git push origin gh-pages');
+            }).then(function () {
+                return system('git checkout master');
+            })
+        );
+    });
+
     grunt.registerTask('perform-release', function () {
         grunt.task.requires([ 'prepare-release', 'dist' ]);
 

@@ -58,7 +58,9 @@ describe('qorlate', function () {
     });
 
     it('should reject the correlation if it is not resolved in the timeout period', function () {
-        var done = false, resolved = false, rejected = false, correlation = ql8();
+        var resolved = false,
+            rejected = false,
+            correlation = ql8();
 
         correlation.promise.then(function success () {
             resolved = true;
@@ -73,6 +75,7 @@ describe('qorlate', function () {
     });
 
     describe('immediate', function () {
+
         it('should immediately return a promise.', function () {
             var promise = ql8.immediate();
             expect(promise).not.toBeNull();
@@ -89,7 +92,9 @@ describe('qorlate', function () {
             }, function () {
                 rejected = true;
             });
+
             $rs.$digest();
+
             expect(resolved).toBe(true);
             expect(rejected).toBe(false);
         });
@@ -98,13 +103,16 @@ describe('qorlate', function () {
             var resolved = false,
                 rejected = false,
                 promise = ql8.immediate(id, true);
+
             promise.then(function (data) {
                 resolved = true;
                 expect(data).toBe(id);
             }, function () {
                 rejected = true;
             });
+
             $rs.$digest();
+
             expect(resolved).toBe(false);
             expect(rejected).toBe(true);
         });

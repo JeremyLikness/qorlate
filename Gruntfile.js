@@ -29,6 +29,13 @@ module.exports = function (grunt) {
                 dest: '<%= builddir %>/<%= pkg.name %>.js'
             }
         },
+        copy: {
+            release: {
+                files: [
+                    {expand: true, flatten: true, src: ['<%= builddir %>/*'], dest: 'release/', filter: 'isFile' }
+                ]
+            }
+        },
         uglify: {
             options: {
                 banner: '<%= meta.banner %>\n'
@@ -106,6 +113,7 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
     grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
     grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
+    grunt.registerTask('release', 'Build to release.', ['dist', 'copy:release']);
     grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect:server', 'karma:background', 'watch']);
     grunt.registerTask('sample', 'Run connect server with keepalive:true for sample app development', ['connect:sample']);
 

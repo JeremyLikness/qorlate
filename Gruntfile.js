@@ -84,15 +84,6 @@ module.exports = function (grunt) {
                 background: false,
                 browsers: [ grunt.option('browser') || 'Chrome' ]
             },
-            past: {
-                configFile: 'config/karma-1.0.8.js'
-            },
-            unstable: {
-                configFile: 'config/karma-1.1.5.js'
-            },
-            future: {
-                configFile: 'config/karma-1.3.0.js'
-            },
             background: {
                 background: true,
                 browsers: [ grunt.option('browser') || 'PhantomJS' ]

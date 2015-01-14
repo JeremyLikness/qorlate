@@ -4,13 +4,13 @@ routerFiles = {
     ],
     testUtils: [],
     test: [
-        'test/*Spec.js'
+        'specs/*Spec.js'
     ],
-    angular: function(version) {
+    angular: function() {
         return [
-            'lib/angular-' + version + '/angular.js',
-            'lib/angular-' + version + '/angular-mocks.js'
-        ].concat(['1.2.14', '1.3.0'].indexOf(version) !== -1 ? ['lib/angular-' + version + '/angular-animate.js'] : []);
+            'bower_components/angular/angular.js',
+            'bower_components/angular-mocks/angular-mocks.js'
+        ];
     }
 };
 

@@ -1,4 +1,6 @@
 /* global angular */
+'use strict';
+
 (function (qlate) {
 
     function getByValOrFn(ref) {

@@ -1,0 +1,21 @@
+{
+  "name": "jlikness-qorlate",
+  "version": "0.0.1",
+  "main": "./release/jlikness.qorlate.js",
+  "dependencies": {
+    "angular": ">= 1.0.8"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "component.json",
+    "package.json",
+    "lib",
+    "config",
+    "sample",
+    "specs",
+    "Gruntfile.js",
+    "files.js"
+  ]
+}

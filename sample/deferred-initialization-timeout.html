@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Deferred Initialization with Timeout &mdash; ($)QOrlate Example</title>
+    <script src="https://code.angularjs.org/1.3.8/angular.js"></script>
+    <script src="../src/jlikness.qorlate.js"></script>
+</head>
+<body>
+    <div ng-app="example1">
+        <ul>
+            <li>First</li>
+            <li ng-repeat="num in list1">{{num}}</li>
+        </ul>
+        <ul>
+            <li>Second</li>
+            <li ng-repeat="num in list2">{{num}}</li>
+        </ul>
+    </div>
+    <script type="text/javascript">
+        (function (app) {
+
+            // emulate a service that must asynchronously
+            // build a list before it can start satisfying
+            // requests, and have one request reject before
+            // it can be satisfied
+            function ListService(qorlate, $timeout) {
+                var _this = this;
+                this.qorlate = qorlate;
+                $timeout(function () {
+                    _this.list = [1, 2, 3, 4, 5];
+                    _this.qorlate.resolve(_this.id, _this.list);                    
+                }, qorlate.defaultTimeout + 100);
+            }
+
+            angular.extend(ListService.prototype, {
+                id: (new Date ()).getTime(),
+                list: [],
+                getList: function () {
+                    if (this.list.length) {
+                        return this.qorlate.immediate(this.list);
+                    }
+                    return this.qorlate({ id: this.id }).promise;
+                }
+            });
+
+            app.service('listService', ListService);
+
+            app.run(['$timeout', '$rootScope', 'listService', 'qorlate',
+
+            function (t, rs, ls, q) {
+
+                rs.list1 = [];
+                rs.list2 = [];
+
+                // request before it's ready
+                ls.getList().then(function (data) {
+                    rs.list1 = data;
+                }, function (err) {
+                    rs.list1.push(err.message);
+                });
+
+                // request after it's ready
+                t(function () {
+                    ls.getList().then(function (data) {
+                        rs.list2 = data;
+                    });
+                }, q.defaultTimeout + 200);
+
+            }]);
+
+        })(angular.module('example1', ['jlikness.qorlate']));
+    </script>
+</body>
+</html>

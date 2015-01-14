@@ -1,0 +1,22 @@
+{
+    "name": "jlikness-qorlate",
+    "version": "0.0.1",
+    "description": "Correlated promises for AngularJS",
+    "keywords": [
+    "angular",
+    "$q",
+    "promise"
+],
+    "main": "release/jlikness.qorlate.min.js",
+    "typescript": {
+    "definition": "api/jlikness-qorlate.d.ts"
+},
+    "scripts": [
+    "release/jlikness-qorlate.min.js"
+],
+    "files": [
+    "api/jlikness-qorlate.d.ts"
+],
+    "license": "MIT",
+    "repo": "jeremylikness/qorlate"
+}

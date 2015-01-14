@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Custom Correlation &mdash; ($)QOrlate Example</title>
+    <script src="https://code.angularjs.org/1.3.8/angular.js"></script>
+    <script src="../release/jlikness.qorlate.js"></script>
+</head>
+<body>
+    <div ng-app="example1">
+        <ul>
+            <li><button ng-disabled="!btn1" ng-click="click1()">Click</button>&nbsp;<span>{{msg1}}</span></li>
+            <li><button ng-disabled="!btn2" ng-click="click2()">Click</button>&nbsp;<span>{{msg2}}</span></li>
+            <li><button ng-disabled="!btn3" ng-click="click3()">Click</button>&nbsp;<span>{{msg3}}</span></li>
+        </ul>        
+    </div>
+    <script type="text/javascript">
+        (function (app) {
+
+            // emulate a service that must asynchronously
+            // respond with a correlation after a random time
+            function DetachedService(qorlate, $log) {
+                this.qorlate = qorlate;
+                this.$log = $log;
+            }
+
+            angular.extend(DetachedService.prototype, {
+                request: function () {
+                    var correlation = this.qorlate(),
+                        time = 4500 + Math.random() * 2000 - 1000,
+                        fail = Math.random() * 100 < 10,
+                        _this = this;
+
+                    this.$log.log("Correlation started with id " + correlation.id +
+                        " timeout " + time +
+                        " failure " + fail);
+
+                    // emulate an asynchronous, disconnected response 
+                    setTimeout(function() {
+                        _this.qorlate.correlate(correlation.id, {}, fail);                    
+                    }, time);
+                    
+                    return correlation.promise;
+                }
+            });
+
+            app.service('detachedService', DetachedService);
+
+            app.config(['qorlateProvider', function(qp) {
+                qp.setProvider({
+                    getId: function() {
+                        return (new Date()).getTime();
+                    }
+                });
+            }]);
+
+            app.run([
+                '$rootScope', 'detachedService', function(rs, ds) {
+                    rs.btn1 = rs.btn2 = rs.btn3 = true;
+                    rs.msg1 = rs.msg2 = rs.msg3 = 'Waiting.';
+                    function clickFn(setBtn, setMsg) {
+                        return function () {
+                            setMsg('Clicked');
+                            setBtn(false);
+                            ds.request().then(function success() {
+                                setMsg('Success');
+                                setBtn(true);
+                            }, function failure(err) {
+                                if (err.message) {
+                                    setMsg(err.message);
+                                } else {
+                                    setMsg('Failure');
+                                }
+                                setBtn(true);
+                            });
+                        }
+                    }
+
+                    rs.click1 = clickFn(function(val) {
+                             rs.btn1 = val;
+                        },
+                        function(val) {
+                             rs.msg1 = val;
+                        });
+                    rs.click2 = clickFn(function (val) {
+                        rs.btn2 = val;
+                    },
+                        function (val) {
+                            rs.msg2 = val;
+                        });
+                    rs.click3 = clickFn(function (val) {
+                        rs.btn3 = val;
+                    },
+                        function (val) {
+                            rs.msg3 = val;
+                        });
+                }
+            ]);
+
+
+        })(angular.module('example1', ['jlikness.qorlate']));
+    </script>
+</body>
+</html>

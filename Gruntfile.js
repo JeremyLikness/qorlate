@@ -115,68 +115,8 @@ module.exports = function (grunt) {
     grunt.registerTask('default', ['build', 'jshint', 'karma:unit']);
     grunt.registerTask('build', 'Perform a normal build', ['concat', 'uglify']);
     grunt.registerTask('dist', 'Perform a clean build', ['clean', 'build']);
-    grunt.registerTask('release', 'Tag and perform a release', ['prepare-release', 'dist', 'perform-release']);
     grunt.registerTask('dev', 'Run dev server and watch for changes', ['build', 'connect:server', 'karma:background', 'watch']);
     grunt.registerTask('sample', 'Run connect server with keepalive:true for sample app development', ['connect:sample']);
-
-    grunt.registerTask('prepare-release', function () {
-        var bower = grunt.file.readJSON('bower.json'),
-            component = grunt.file.readJSON('component.json'),
-            version = bower.version;
-        if (version != grunt.config('pkg.version')) throw 'Version mismatch in bower.json';
-        if (version != component.version) throw 'Version mismatch in component.json';
-
-        promising(this,
-            ensureCleanMaster().then(function () {
-                return exec('git tag -l \'' + version + '\'');
-            }).then(function (result) {
-                if (result.stdout.trim() !== '') throw 'Tag \'' + version + '\' already exists';
-                grunt.config('buildtag', '');
-                grunt.config('builddir', 'release');
-            })
-        );
-    });
-
-    grunt.registerTask('publish-pages', 'Publish a clean build and sample to github.io', function () {
-        promising(this,
-            ensureCleanMaster().then(function () {
-                shjs.rm('-rf', 'build');
-                return system('git checkout gh-pages');
-            }).then(function () {
-                return system('git merge master');
-            }).then(function () {
-                return system('git commit -a -m \'Automatic gh-pages build\'');
-            }).then(function () {
-                return system('git checkout master');
-            })
-        );
-    });
-
-    grunt.registerTask('push-pages', 'Push published pages', function () {
-        promising(this,
-            ensureCleanMaster().then(function () {
-                shjs.rm('-rf', 'build');
-                return system('git checkout gh-pages');
-            }).then(function () {
-                return system('git push origin gh-pages');
-            }).then(function () {
-                return system('git checkout master');
-            })
-        );
-    });
-
-    grunt.registerTask('perform-release', function () {
-        grunt.task.requires([ 'prepare-release', 'dist' ]);
-
-        var version = grunt.config('pkg.version'), releasedir = grunt.config('builddir');
-        promising(this,
-            system('git add \'' + releasedir + '\'').then(function () {
-                return system('git commit -m \'release ' + version + '\'');
-            }).then(function () {
-                return system('git tag \'' + version + '\'');
-            })
-        );
-    });
 
     // Helpers for custom tasks, mainly around promises / exec
     var exec = require('faithful-exec'), shjs = require('shelljs');

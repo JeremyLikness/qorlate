@@ -121,32 +121,4 @@ module.exports = function (grunt) {
     // Helpers for custom tasks, mainly around promises / exec
     var exec = require('faithful-exec'), shjs = require('shelljs');
 
-    function system(cmd) {
-        grunt.log.write('% ' + cmd + '\n');
-        return exec(cmd).then(function (result) {
-            grunt.log.write(result.stderr + result.stdout);
-        }, function (error) {
-            grunt.log.write(error.stderr + '\n');
-            throw 'Failed to run \'' + cmd + '\'';
-        });
-    }
-
-    function promising(task, promise) {
-        var done = task.async();
-        promise.then(function () {
-            done();
-        }, function (error) {
-            grunt.log.write(error + '\n');
-            done(false);
-        });
-    }
-
-    function ensureCleanMaster() {
-        return exec('git symbolic-ref HEAD').then(function (result) {
-            if (result.stdout.trim() !== 'refs/heads/master') throw 'Not on master branch, aborting';
-            return exec('git status --porcelain');
-        }).then(function (result) {
-            if (result.stdout.trim() !== '') throw 'Working copy is dirty, aborting';
-        });
-    }
 };

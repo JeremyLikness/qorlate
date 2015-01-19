@@ -93,5 +93,4 @@ populated, you might write:
     
 ##Examples and Specifications
 
-To run the examples and specifications, visit: [the sample page](http://jeremylikness.github.io/sample/)
-
+To run the examples and specifications, visit: [the sample page](http://jeremylikness.github.io/qorlate/sample/).

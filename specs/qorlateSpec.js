@@ -12,7 +12,7 @@ describe('qorlate', function () {
         $t,
         ql8,
         id = 'test',
-        idFn = function () { return id; };
+        idFn = function () { return id;};
 
     beforeEach(function () {
         module('jlikness.qorlate');
@@ -118,19 +118,25 @@ describe('qorlate', function () {
         });
     });
 
-    it('should use timeout passed in configuration', function () {
+    it('should use timeout passed in configuration', inject(function ($browser) {
+        ql8({ timeout: 50 });
+        expect($browser.deferredFns[0].time).toBe(50);
+        $t.flush();
+    }));
 
-    });
+    it('should use result of function for timeout passed in configuration', inject(function ($browser) {
+        ql8({ timeout: function () { return 100; }});
+        expect($browser.deferredFns[0].time).toBe(100);
+        $t.flush();
+    }));
 
-    it('should use result of function for timeout passed in configuration', function () {
+    it('should cancel the timeout if it is passed as null', inject(function ($browser) {
+        ql8( { timeout: null } );
+        expect($browser.deferredFns.length).toBe(0);
+    }));
 
-    });
-
-    it('should cancel the timeout if it is passed as null', function () {
-
-    });
-
-    it('should cancel the timeout if it is passed as a value less than zero', function () {
-
-    });
+    it('should cancel the timeout if it is passed as a value less than zero', inject(function ($browser) {
+        ql8( { timeout: -1 });
+        expect($browser.deferredFns.length).toBe(0);
+    }));
 });

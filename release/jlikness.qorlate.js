@@ -1,11 +1,11 @@
 /**
  * Correlated promises for AngularJS
- * @version v0.0.1-dev-2015-01-14
+ * @version v0.0.1-dev-2015-01-19
  * @link 
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
 
-(function (window, angular, undefined) {
+(function (window, angular) {
 /* global angular */
 'use strict';
 

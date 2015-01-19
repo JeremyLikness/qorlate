@@ -21,7 +21,7 @@ module.exports = function (grunt) {
         concat: {
             options: {
                 banner: '<%= meta.banner %>\n\n'+
-                '(function (window, angular, undefined) {\n',
+                '(function (window, angular) {\n',
                 footer: '})(window, window.angular);'
             },
             build: {

@@ -66,7 +66,7 @@ describe('jlikness.qorlate', function () {
             module('jlikness.qorlate');
 
             inject(function (qorlate) {
-                var last, current, iteration, correlation, previous;
+                var last, current = -1, iteration, correlation;
                 for (iteration = 0; iteration < 1000; iteration+=1) {
                     correlation = qorlate({timeout:null});
                     last = current;

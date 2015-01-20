@@ -32,20 +32,73 @@
         },
         $get: ['$q', '$timeout', function ($q, $timeout) {
 
-            var _this = this;
+            var _this = this,
+                subscriptionProvider = new IdProvider(); // internal only
 
             function QorlateFn(config) {
 
                 var defer = $q.defer(),
                     correlationId, // id to match back to the service
                     timeout, // amount of time in milliseconds to reject the correlation
-                    timer = null; // timer reference to cancel the timeout
+                    timer = null, // timer reference to cancel the timeout
+                    configuredId = null,
+                    subscriptionId = null,
+                    subscription = null,
+                    correlation = null;
 
                 // use default provider unless it is passed in
                 if (config && config.id) {
                     correlationId = getByValOrFn(config.id);
                 } else {
                     correlationId = _this.provider.getId();
+                }
+
+                // special logic for subscriptions
+                if (config && config.subscribe) {
+                    configuredId = config.id || getByValOrFn(config.subscribe);
+
+                    if (configuredId !== !!configuredId) {
+
+                        subscriptionId = configuredId + ':' + subscriptionProvider.getId();
+
+                        subscription = {
+                            id: subscriptionId
+                        };
+
+                        correlation = {
+                            resolveFn: angular.noop,
+                            rejectFn: angular.noop
+                        };
+
+                        subscription.always = function (resolveFn, rejectFn) {
+                            correlation.resolveFn = resolveFn;
+                            correlation.rejectFn = rejectFn;
+                            return function () {
+                                if (_this.correlations[configuredId] &&
+                                _this.correlations[configuredId][subscriptionId]) {
+                                    var correlation = _this.correlations[configuredId][subscriptionId];
+                                    correlation.resolveFn = angular.noop;
+                                    correlation.rejectFn = angular.noop;
+                                    delete _this.correlations[configuredId][subscriptionId];
+                                }
+                            }
+                        };
+
+                        if (!_this.correlations[configuredId]) {
+                            _this.correlations[configuredId] = [];
+                        }
+
+                        _this.correlations[configuredId].push({
+                           subscriptionId: subscriptionId
+                        });
+
+                        _this.correlations[configuredId][subscriptionId] = correlation;
+
+                        return subscription;
+                    }
+                    else {
+                        throw new Error('Subscription id is required.');
+                    }
                 }
 
                 // use default timeout unless it is passed in
@@ -106,11 +159,26 @@
             // Option to "resolve" a correlation - pass in the correlation id,
             // option data, and whether it failed
             QorlateFn.correlate = function (id, data, failed) {
-                var exists = false, correlation;
+                var exists = false, correlation, subscriptions = [], subscription;
                 while (_this.correlations[id] && _this.correlations[id].length) {
 
                     correlation = _this.correlations[id].pop();
-                    exists = true; // correlation existed
+
+                    // special case for subscriptions
+                    if (correlation.subscriptionId) {
+                        if (_this.correlations[id][correlation.subscriptionId]) {
+                            exists = true; // correlation existed
+                            subscriptions.push(correlation.subscriptionId);
+                            subscription = _this.correlations[id][correlation.subscriptionId];
+                            if (failed) {
+                                subscription.rejectFn(data);
+                            }
+                            else {
+                                subscription.resolveFn(data);
+                            }
+                        }
+                        continue;
+                    }
 
                     if (correlation.timer) {
                         $timeout.cancel(correlation.timer);
@@ -120,19 +188,26 @@
                         continue;
                     }
 
+                    exists = true; // correlation existed
+
                     if (failed) {
                         correlation.defer.reject(data);
                     } else {
                         correlation.defer.resolve(data);
                     }
-
                 }
 
-                if (exists) {
+                if (subscriptions.length === 0) {
                     delete _this.correlations[id];
+                } else {
+                    while (subscriptions.length) {
+                        _this.correlations[id].push({
+                            subscriptionId: subscriptions.pop()
+                        });
+                    }
                 }
 
-                return exists; // correlation did not exist
+                return exists; // correlation did or did not exist
             };
 
             QorlateFn.reject = function(id, data) {

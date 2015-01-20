@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Pub/Sub (Event Aggregator) &mdash; ($)QOrlate Example</title>
+    <script src="https://code.angularjs.org/1.3.9/angular.min.js"></script>
+    <script src="../release/jlikness.qorlate.min.js"></script>
+</head>
+<body>
+<div ng-app="pubsub">
+    <ul>
+        <li ng-repeat="num in list">{{num}}</li>
+    </ul>
+    <div><button ng-click="add()">Add</button></div>
+    <div><button ng-click="cancel()">Cancel</button></div>
+</div>
+<script type="text/javascript">
+    (function (app) {
+
+        app.run(['$rootScope', 'qorlate',
+
+            function (rs, q) {
+
+                var cancel = angular.noop;
+
+                rs.list = [];
+
+                rs.add = function () {
+                    q.correlate('addItem', (new Date()).getTime());
+                };
+
+                rs.cancel = function () {
+                    cancel();
+                    cancel = angular.noop;
+                };
+
+                cancel = q({subscribe:'addItem'}).always(function (item) {
+                    rs.list.push(item);
+                });
+
+            }]);
+
+    })(angular.module('pubsub', ['jlikness.qorlate']));
+</script>
+</body>
+</html>

@@ -16,6 +16,16 @@ declare module jlikness {
         promise: IQorlatePromise
     }
 
+    interface ICancelSubscription {
+        (): any;
+    }
+
+    interface IQorlateSubscription {
+        id: any;
+        always: (successCallback: (promiseValue: any) => any,
+            errorCallback?: (reason: any) => any) => ICancelSubscription;
+    }
+
     interface IQorlateConfiguration {
         id?: any;
         timeout?: any;
@@ -23,6 +33,7 @@ declare module jlikness {
 
     interface IQorlate {
         (config?: IQorlateConfiguration): IQorlateCorrelation;
+        (config?: IQorlateConfiguration): IQorlateSubscription;
         defaultTimeout: number;
         immediate: (data?: any, failed?: boolean) => IQorlatePromise;
         correlate: (correlationId: any, data?: any, failed?: boolean) => boolean;

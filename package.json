@@ -1,7 +1,7 @@
 {
   "name": "jlikness.qorlate",
   "description": "Correlated promises for AngularJS",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "contributors": [{
     "name": "Jeremy Likness",
     "email": "jeremy@jeremylikness.com",

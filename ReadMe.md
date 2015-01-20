@@ -38,11 +38,22 @@ The configuration may have the following parameters:
 `timeout`: the value you wish to set for the timeout of the correlation, or a function to return the value. If this is not
 passed, then `qorlate.defaultTimeout` will be used. Set this to `null` or a negative number to prevent any timeout.
 
+`subscribe`: when true or set to a value, indicates this is a subscription for a pub/sub model (i.e. the result will
+fire multiple times). You may set the `id` and `subscribe` to `true` or you may set `subscribe` with the same rules
+as `id` (i.e. value or function).
+
 The function returns a `IQorlateCorrelation` result that contains: 
 
 `id`: the correlation id, either generated or passed in by configuration 
 
-`promise`: the resulting promise 
+`promise`: the resulting promise
+
+Or, for a subscription, a 'IQorlateSubscription' result that contains:
+
+`id`: the id of the subscription (the correlation id and a unique identifier)
+
+`always`: a method to call with a success callback and an optional failure callback to fire whenever a message is
+raised. The result of the call to `always` is a cancellation function you may call to unsubscribe.
 
 Create a correlation with the default timeout: 
 
@@ -55,6 +66,12 @@ Create a correlation that never times out:
 Create a correlation with a specific value: 
 
 `var correlation = qorlate({id:'my-correlation'});`
+
+Subscribe to a message, then cancel the subscription:
+
+    var subscription = qorlate({subscribe:'event'});
+    var cancel = subscription.always(function success() {}, function error() {});
+    cancel();
 
 Consume the promise returned by a correlation: 
 

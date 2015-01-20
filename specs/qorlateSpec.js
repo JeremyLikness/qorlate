@@ -8,6 +8,11 @@ describe('jlikness.qorlate', function () {
         expect(typeof candidate.finally).toBe('function');
     }
 
+    function isSubscription(candidate) {
+        expect(typeof candidate.always).toBe('function');
+        expect(candidate.id).not.toBe(null);
+    }
+
     describe('qorlateProvider', function () {
 
         it('should use the value set for default timeout', function () {
@@ -108,6 +113,27 @@ describe('jlikness.qorlate', function () {
             expect(correlation.promise).not.toBeNull();
             isPromise(correlation.promise);
             $t.flush();
+        });
+
+        it('should use the subscription id', function () {
+            var subscription = ql8({subscribe:1});
+            isSubscription(subscription);
+        });
+
+        it('should use the subscription function', function () {
+            var subscription = ql8({subscribe: function () { return 1; }});
+            isSubscription(subscription);
+        });
+
+        it('should throw an exception if an id is not passed to a subscription', function () {
+            expect(function () {
+                ql8({subscribe:true});
+            }).toThrow(new Error('Subscription id is required.'));
+        });
+
+        it('should return a subscription', function () {
+            var correlation = ql8({id:'test', subscribe:true});
+            isSubscription(correlation);
         });
 
         it('should return a unique correlation id with each call', function () {
@@ -328,6 +354,70 @@ describe('jlikness.qorlate', function () {
                 expect(rejected2).toBe(false);
             });
 
+            it('should handle multiple calls to the same subscription', function () {
+                var subscription = ql8({subscribe:'test1'}),
+                    resolved = 0,
+                    rejected = 0;
+                subscription.always(function (data) {
+                    resolved += data;
+                }, function () {
+                    rejected += 1;
+                });
+                ql8.correlate('test1', 1);
+                ql8.correlate('test1', null, true);
+                ql8.correlate('test1', 2);
+                ql8.correlate('test1', null, true);
+                expect(resolved).toBe(3);
+                expect(rejected).toBe(2);
+            });
+
+            it('should handle multiple subscriptions to the same subscription', function () {
+                var subscription1 = ql8({subscribe:'test2'}),
+                    subscription2 = ql8({subscribe:'test2'}),
+                    resolved = 0,
+                    rejected = 0;
+                subscription1.always(function (data) {
+                    resolved += data;
+                }, function () {
+                    rejected += 1;
+                });
+                subscription2.always(function (data) {
+                    resolved += data;
+                }, function () {
+                    rejected += 1;
+                });
+                ql8.correlate('test2', 1);
+                ql8.correlate('test2', null, true);
+                ql8.correlate('test2', 2);
+                ql8.correlate('test2', null, true);
+                expect(resolved).toBe(6);
+                expect(rejected).toBe(4);
+            });
+
+            it('should handle subscription cancellations to the same subscription', function () {
+                var subscription1 = ql8({subscribe:'test3'}),
+                    subscription2 = ql8({subscribe:'test3'}),
+                    resolved = 0,
+                    rejected = 0,
+                    cancel;
+                subscription1.always(function (data) {
+                    resolved += data;
+                }, function () {
+                    rejected += 1;
+                });
+                cancel = subscription2.always(function (data) {
+                    resolved += data;
+                }, function () {
+                    rejected += 1;
+                });
+                ql8.correlate('test3', 1);
+                ql8.correlate('test3', null, true);
+                cancel();
+                ql8.correlate('test3', 2);
+                ql8.correlate('test3', null, true);
+                expect(resolved).toBe(4);
+                expect(rejected).toBe(3);
+            });
         });
 
         describe('resolved', function () {
@@ -390,6 +480,42 @@ describe('jlikness.qorlate', function () {
                 expect(rejected2).toBe(false);
             });
 
+            it('should handle multiple calls to the same subscription', function () {
+                var subscription = ql8({subscribe:'resolve1'}),
+                    resolved = 0,
+                    rejected = 0;
+                subscription.always(function (data) {
+                    resolved += data;
+                }, function () {
+                    rejected += 1;
+                });
+                ql8.resolve('resolve1', 1);
+                ql8.resolve('resolve1', 2);
+                expect(resolved).toBe(3);
+                expect(rejected).toBe(0);
+            });
+
+            it('should handle multiple subscriptions to the same subscription', function () {
+                var subscription1 = ql8({subscribe:'resolve2'}),
+                    subscription2 = ql8({subscribe:'resolve2'}),
+                    resolved = 0,
+                    rejected = 0;
+                subscription1.always(function (data) {
+                    resolved += data;
+                }, function () {
+                    rejected += 1;
+                });
+                subscription2.always(function (data) {
+                    resolved += data;
+                }, function () {
+                    rejected += 1;
+                });
+                ql8.resolve('resolve2', 1);
+                ql8.resolve('resolve2', 2);
+                expect(resolved).toBe(6);
+                expect(rejected).toBe(0);
+            });
+
         });
 
         describe('reject', function () {
@@ -450,6 +576,42 @@ describe('jlikness.qorlate', function () {
                 expect(rejected1).toBe(true);
                 expect(resolved2).toBe(false);
                 expect(rejected2).toBe(true);
+            });
+
+            it('should handle multiple calls to the same subscription', function () {
+                var subscription = ql8({subscribe:'reject1'}),
+                    resolved = 0,
+                    rejected = 0;
+                subscription.always(function (data) {
+                    resolved += data;
+                }, function () {
+                    rejected += 1;
+                });
+                ql8.reject('reject1');
+                ql8.reject('reject1');
+                expect(resolved).toBe(0);
+                expect(rejected).toBe(2);
+            });
+
+            it('should handle multiple subscriptions to the same subscription', function () {
+                var subscription1 = ql8({subscribe:'reject2'}),
+                    subscription2 = ql8({subscribe:'reject2'}),
+                    resolved = 0,
+                    rejected = 0;
+                subscription1.always(function (data) {
+                    resolved += data;
+                }, function () {
+                    rejected += 1;
+                });
+                subscription2.always(function (data) {
+                    resolved += data;
+                }, function () {
+                    rejected += 1;
+                });
+                ql8.reject('reject2');
+                ql8.reject('reject2');
+                expect(resolved).toBe(0);
+                expect(rejected).toBe(4);
             });
 
         });

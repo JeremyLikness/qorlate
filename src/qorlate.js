@@ -170,14 +170,12 @@
                             exists = true; // correlation existed
                             subscriptions.push(correlation.subscriptionId);
                             subscription = _this.correlations[id][correlation.subscriptionId];
-                            if (failed) {
-                                subscription.rejectFn(data);
-                            }
-                            else {
-                                subscription.resolveFn(data);
-                            }
+                            correlation.defer = $q.defer();
+                            correlation.defer.promise.then(subscription.resolveFn, subscription.rejectFn);
                         }
-                        continue;
+                        else {
+                            continue;
+                        }
                     }
 
                     if (correlation.timer) {

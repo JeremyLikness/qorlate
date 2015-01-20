@@ -1,6 +1,6 @@
 /**
  * Correlated promises for AngularJS
- * @version v0.0.2-dev-2015-01-20
+ * @version v0.0.3-dev-2015-01-20
  * @link 
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -178,14 +178,12 @@
                             exists = true; // correlation existed
                             subscriptions.push(correlation.subscriptionId);
                             subscription = _this.correlations[id][correlation.subscriptionId];
-                            if (failed) {
-                                subscription.rejectFn(data);
-                            }
-                            else {
-                                subscription.resolveFn(data);
-                            }
+                            correlation.defer = $q.defer();
+                            correlation.defer.promise.then(subscription.resolveFn, subscription.rejectFn);
                         }
-                        continue;
+                        else {
+                            continue;
+                        }
                     }
 
                     if (correlation.timer) {

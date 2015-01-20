@@ -1,7 +1,12 @@
 ($Q)orlate
 ==================
 
-Simple module for promise correlations, i.e. promises that are resolved outside of the initial request. This is useful for things like handling asynchronous initialization of service caches and using message buses or queues with signalR. 
+Simple module for promise correlations, i.e. promises that are resolved outside of the initial request. This is useful
+for things like handling asynchronous initialization of service caches and using message buses or queues with signalR.
+It also provides an event aggregator (publisher/subscriber) model for persistent messages. It all uses $Q under the
+covers.
+
+[See and run the specifications](http://jeremylikness.github.io/qorlate/sample/tests.html)
 
 ##qorlateProvider
 Use the `qorlateProvider` to change the default timeout and specify your own provider for correlation ids.

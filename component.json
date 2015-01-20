@@ -1,6 +1,6 @@
 {
     "name": "jlikness-qorlate",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "description": "Correlated promises for AngularJS",
     "keywords": [
     "angular",

@@ -354,6 +354,24 @@ describe('jlikness.qorlate', function () {
                 expect(rejected2).toBe(false);
             });
 
+            it('should handle a promise and a subscription', function () {
+                var resolvedPromise = 0,
+                    resolvedSubscription = 0,
+                    subscription = ql8({subscribe:'both1'}),
+                    correlation = ql8({id:'both1'});
+                subscription.always(function () {
+                    resolvedSubscription += 1;
+                });
+                correlation.promise.then(function () {
+                    resolvedPromise += 1;
+                });
+                ql8.correlate('both1');
+                ql8.correlate('both1');
+                $rs.$digest();
+                expect(resolvedPromise).toBe(1);
+                expect(resolvedSubscription).toBe(2);
+            });
+
             it('should handle multiple calls to the same subscription', function () {
                 var subscription = ql8({subscribe:'test1'}),
                     resolved = 0,
@@ -367,6 +385,7 @@ describe('jlikness.qorlate', function () {
                 ql8.correlate('test1', null, true);
                 ql8.correlate('test1', 2);
                 ql8.correlate('test1', null, true);
+                $rs.$digest();
                 expect(resolved).toBe(3);
                 expect(rejected).toBe(2);
             });
@@ -390,6 +409,7 @@ describe('jlikness.qorlate', function () {
                 ql8.correlate('test2', null, true);
                 ql8.correlate('test2', 2);
                 ql8.correlate('test2', null, true);
+                $rs.$digest();
                 expect(resolved).toBe(6);
                 expect(rejected).toBe(4);
             });
@@ -412,9 +432,11 @@ describe('jlikness.qorlate', function () {
                 });
                 ql8.correlate('test3', 1);
                 ql8.correlate('test3', null, true);
+                $rs.$digest();
                 cancel();
                 ql8.correlate('test3', 2);
                 ql8.correlate('test3', null, true);
+                $rs.$digest();
                 expect(resolved).toBe(4);
                 expect(rejected).toBe(3);
             });
@@ -480,6 +502,24 @@ describe('jlikness.qorlate', function () {
                 expect(rejected2).toBe(false);
             });
 
+            it('should handle a promise and a subscription', function () {
+                var resolvedPromise = 0,
+                    resolvedSubscription = 0,
+                    subscription = ql8({subscribe:'both2'}),
+                    correlation = ql8({id:'both2'});
+                subscription.always(function () {
+                    resolvedSubscription += 1;
+                });
+                correlation.promise.then(function () {
+                    resolvedPromise += 1;
+                });
+                ql8.resolve('both2');
+                ql8.resolve('both2');
+                $rs.$digest();
+                expect(resolvedPromise).toBe(1);
+                expect(resolvedSubscription).toBe(2);
+            });
+
             it('should handle multiple calls to the same subscription', function () {
                 var subscription = ql8({subscribe:'resolve1'}),
                     resolved = 0,
@@ -491,6 +531,7 @@ describe('jlikness.qorlate', function () {
                 });
                 ql8.resolve('resolve1', 1);
                 ql8.resolve('resolve1', 2);
+                $rs.$digest();
                 expect(resolved).toBe(3);
                 expect(rejected).toBe(0);
             });
@@ -512,6 +553,7 @@ describe('jlikness.qorlate', function () {
                 });
                 ql8.resolve('resolve2', 1);
                 ql8.resolve('resolve2', 2);
+                $rs.$digest();
                 expect(resolved).toBe(6);
                 expect(rejected).toBe(0);
             });
@@ -578,6 +620,24 @@ describe('jlikness.qorlate', function () {
                 expect(rejected2).toBe(true);
             });
 
+            it('should handle a promise and a subscription', function () {
+                var rejectedPromise = 0,
+                    rejectedSubscription = 0,
+                    subscription = ql8({subscribe:'both3'}),
+                    correlation = ql8({id:'both3'});
+                subscription.always(angular.noop, function () {
+                    rejectedSubscription += 1;
+                });
+                correlation.promise.then(angular.noop, function () {
+                    rejectedPromise += 1;
+                });
+                ql8.reject('both3');
+                ql8.reject('both3');
+                $rs.$digest();
+                expect(rejectedPromise).toBe(1);
+                expect(rejectedSubscription).toBe(2);
+            });
+
             it('should handle multiple calls to the same subscription', function () {
                 var subscription = ql8({subscribe:'reject1'}),
                     resolved = 0,
@@ -589,6 +649,7 @@ describe('jlikness.qorlate', function () {
                 });
                 ql8.reject('reject1');
                 ql8.reject('reject1');
+                $rs.$digest();
                 expect(resolved).toBe(0);
                 expect(rejected).toBe(2);
             });
@@ -610,6 +671,7 @@ describe('jlikness.qorlate', function () {
                 });
                 ql8.reject('reject2');
                 ql8.reject('reject2');
+                $rs.$digest();
                 expect(resolved).toBe(0);
                 expect(rejected).toBe(4);
             });

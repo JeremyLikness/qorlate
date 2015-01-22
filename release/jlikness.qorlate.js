@@ -1,6 +1,6 @@
 /**
  * Correlated promises for AngularJS
- * @version v0.0.4-dev-2015-01-21
+ * @version v0.0.4-dev-2015-01-22
  * @link 
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -163,13 +163,7 @@
 
             // option to immediately invoke the promise
             QorlateFn.immediate = function (data, failed) {
-                var defer = $q.defer();
-                if (failed) {
-                    defer.reject(data);
-                } else {
-                    defer.resolve(data);
-                }
-                return defer.promise;
+                return !!failed ? $q.reject(data) : $q.when(data);
             };
 
             // Option to "resolve" a correlation - pass in the correlation id,

@@ -1,6 +1,6 @@
 /**
  * Correlated promises for AngularJS
- * @version v0.0.3-dev-2015-01-20
+ * @version v0.0.4-dev-2015-01-21
  * @link 
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -61,9 +61,17 @@
                     correlationId = _this.provider.getId();
                 }
 
+                if (!_this.correlations[correlationId]) {
+                    _this.correlations[correlationId] = [];
+                }
+
                 // special logic for subscriptions
                 if (config && config.subscribe) {
                     configuredId = config.id || getByValOrFn(config.subscribe);
+
+                    if (!_this.correlations[configuredId]) {
+                        _this.correlations[configuredId] = [];
+                    }
 
                     if (configuredId !== !!configuredId) {
 
@@ -92,10 +100,6 @@
                             }
                         };
 
-                        if (!_this.correlations[configuredId]) {
-                            _this.correlations[configuredId] = [];
-                        }
-
                         _this.correlations[configuredId].push({
                            subscriptionId: subscriptionId
                         });
@@ -107,6 +111,14 @@
                     else {
                         throw new Error('Subscription id is required.');
                     }
+                }
+
+                // check if it's already fired
+                if (_this.correlations[correlationId].defer) {
+                    return {
+                        id: correlationId,
+                        promise: _this.correlations[correlationId].defer.promise
+                    };
                 }
 
                 // use default timeout unless it is passed in
@@ -125,10 +137,6 @@
                             id: correlationId
                         });
                     }, timeout);
-                }
-
-                if (!_this.correlations[correlationId]) {
-                    _this.correlations[correlationId] = [];
                 }
 
                 // cache the correlation
@@ -167,8 +175,17 @@
             // Option to "resolve" a correlation - pass in the correlation id,
             // option data, and whether it failed
             QorlateFn.correlate = function (id, data, failed) {
-                var exists = false, correlation, subscriptions = [], subscription;
-                while (_this.correlations[id] && _this.correlations[id].length) {
+                var exists = false,
+                    correlation,
+                    guaranteedPromise,
+                    subscriptions = [],
+                    subscription;
+
+                if (!_this.correlations[id]) {
+                    _this.correlations[id] = [];
+                }
+
+                while (_this.correlations[id].length) {
 
                     correlation = _this.correlations[id].pop();
 
@@ -201,17 +218,28 @@
                     } else {
                         correlation.defer.resolve(data);
                     }
+
+                    guaranteedPromise = correlation.defer;
                 }
 
-                if (subscriptions.length === 0) {
-                    delete _this.correlations[id];
-                } else {
-                    while (subscriptions.length) {
-                        _this.correlations[id].push({
-                            subscriptionId: subscriptions.pop()
-                        });
+                while (subscriptions.length) {
+                    _this.correlations[id].push({
+                        subscriptionId: subscriptions.pop()
+                    });
+                }
+
+                //  this is guaranteed to cache the promise results for any callers
+                if (!guaranteedPromise) {
+                    guaranteedPromise = $q.defer();
+                    if (failed) {
+                        guaranteedPromise.reject(data);
+                    }
+                    else {
+                        guaranteedPromise.resolve(data);
                     }
                 }
+
+                _this.correlations[id].defer = guaranteedPromise;
 
                 return exists; // correlation did or did not exist
             };

@@ -327,8 +327,8 @@ describe('jlikness.qorlate', function () {
                     rejected1 = false,
                     resolved2 = false,
                     rejected2 = false,
-                    correlation1 = ql8({id: 'myTest', timeout: null}),
-                    correlation2 = ql8({id: 'myTest', timeout: null}),
+                    correlation1 = ql8({id: 'myTest1', timeout: null}),
+                    correlation2 = ql8({id: 'myTest1', timeout: null}),
                     promise1 = correlation1.promise,
                     promise2 = correlation2.promise;
 
@@ -344,7 +344,7 @@ describe('jlikness.qorlate', function () {
                     rejected2 = true;
                 });
 
-                ql8.correlate('myTest');
+                ql8.correlate('myTest1');
 
                 $rs.$digest();
 
@@ -475,8 +475,8 @@ describe('jlikness.qorlate', function () {
                     rejected1 = false,
                     resolved2 = false,
                     rejected2 = false,
-                    correlation1 = ql8({id: 'myTest', timeout: null}),
-                    correlation2 = ql8({id: 'myTest', timeout: null}),
+                    correlation1 = ql8({id: 'myTest2', timeout: null}),
+                    correlation2 = ql8({id: 'myTest2', timeout: null}),
                     promise1 = correlation1.promise,
                     promise2 = correlation2.promise;
 
@@ -492,7 +492,7 @@ describe('jlikness.qorlate', function () {
                     rejected2 = true;
                 });
 
-                ql8.resolve('myTest');
+                ql8.resolve('myTest2');
 
                 $rs.$digest();
 
@@ -593,8 +593,8 @@ describe('jlikness.qorlate', function () {
                     rejected1 = false,
                     resolved2 = false,
                     rejected2 = false,
-                    correlation1 = ql8({id: 'myTest', timeout: null}),
-                    correlation2 = ql8({id: 'myTest', timeout: null}),
+                    correlation1 = ql8({id: 'myTest3', timeout: null}),
+                    correlation2 = ql8({id: 'myTest3', timeout: null}),
                     promise1 = correlation1.promise,
                     promise2 = correlation2.promise;
 
@@ -610,7 +610,7 @@ describe('jlikness.qorlate', function () {
                     rejected2 = true;
                 });
 
-                ql8.reject('myTest');
+                ql8.reject('myTest3');
 
                 $rs.$digest();
 

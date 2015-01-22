@@ -36,9 +36,6 @@
                 id: (new Date()).getTime(),
                 list: [],
                 getList: function () {
-                    if (this.list.length) {
-                        return this.qorlate.immediate(this.list);
-                    }
                     return this.qorlate({ id: this.id }).promise;
                 }
             });

@@ -1,3 +1,7 @@
+<a name="0.0.4"></a>
+### 0.0.4 (2015-01-21)
+Fixed correlations to recall last resolution/rejection.
+
 <a name="0.0.3"></a>
 ### 0.0.3 (2015-01-20)
 Refactored pub/sub to use $q under the covers.

@@ -100,17 +100,10 @@ Use this method to resolve the correlation. Parameters are the same as `qorlate.
 Use this method to reject the correlation. Parameters are the same as `qorlate.correlate` with `failed` set to `true`.
 
 ###`qorlate.immediate([data], [failed])` 
-Use this method to generate a promise that is immediate resolved or rejected. It is useful in the scenario when the 
-correlation is used to defer initialization of a component. For example, if your component is waiting for `list` to be
-populated, you might write: 
+Use this method to generate a promise that is immediately resolved or rejected. This is a one-off utility/shorthand:
 
     function getList() {
-       if (this.list.length) { // list is populated
-          return qorlate.immediate(this.list); // send and immediately reoslve the promise 
-       } 
-       else {
-          return qorlate({id: 'myList'}).promise; // wait for the list to be initialized
-       }
+       return qorlate.immediate(this.list); // send and immediately reoslve the promise 
     }
     
 ##Examples and Specifications
